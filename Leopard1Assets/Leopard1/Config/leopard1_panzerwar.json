@@ -1,0 +1,75 @@
+{
+  "vehicle": "Leopard 1",
+  "target": "Panzer War / 装甲纷争 Android",
+  "source": "WoT Blitz SC2/SCG extraction",
+  "coordinate_conversion": "source (x,y,z) -> Unity (-x,z,y)",
+  "parts": {
+    "chassis": [
+      71,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      31,
+      34,
+      48,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      32,
+      41
+    ],
+    "turret": [
+      77
+    ],
+    "gun": [
+      86,
+      73
+    ]
+  },
+  "pivots_unity": {
+    "TurretPivot": [
+      -0.0,
+      1.72,
+      0.0
+    ],
+    "GunPivot_world": [
+      -0.0,
+      2.17,
+      1.45
+    ],
+    "Muzzle_local_from_GunPivot": [
+      -0.0,
+      -0.1499999999999999,
+      4.4799999999999995
+    ]
+  },
+  "nominal_gameplay": {
+    "mass_tonnes": 42.4,
+    "engine_hp": 830,
+    "max_speed_kmh": 65,
+    "reverse_speed_kmh": 23,
+    "gun_caliber_mm": 105,
+    "reload_seconds": 8.0,
+    "gun_depression_deg": -9,
+    "gun_elevation_deg": 20,
+    "turret_traverse_deg_s": 36
+  },
+  "build_status": "Geometry, pivots, raw PBR texture payloads and Unity automation complete. Final Panzer War .modpack compilation requires the official Panzer War Mod SDK inside Unity."
+}

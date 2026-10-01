@@ -1,0 +1,17 @@
+name: Unity License Check
+on:
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify secrets exist
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          [ -n "$UNITY_LICENSE" ] && echo "UNITY_LICENSE: present" || echo "UNITY_LICENSE: MISSING"
+          [ -n "$UNITY_EMAIL" ] && echo "UNITY_EMAIL: present" || echo "UNITY_EMAIL: MISSING"
+          [ -n "$UNITY_PASSWORD" ] && echo "UNITY_PASSWORD: present" || echo "UNITY_PASSWORD: MISSING"

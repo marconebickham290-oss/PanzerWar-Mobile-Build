@@ -1,0 +1,16 @@
+{
+  "infos": [
+    {
+      "modNames": [
+        "BuildPipline-Vehicle-Leopard1"
+      ],
+      "copyInfo": [
+        {
+          "platform": "Android",
+          "dstDir": "Build/CloudOutput"
+        }
+      ],
+      "isPackage": true
+    }
+  ]
+}

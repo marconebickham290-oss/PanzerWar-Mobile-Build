@@ -1,0 +1,78 @@
+name: Panzer War Leopard1 Cloud Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Unity secrets
+        shell: bash
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          set -e
+          [ -n "$UNITY_LICENSE" ] || { echo "Missing UNITY_LICENSE"; exit 11; }
+          [ -n "$UNITY_EMAIL" ] || { echo "Missing UNITY_EMAIL"; exit 12; }
+          [ -n "$UNITY_PASSWORD" ] || { echo "Missing UNITY_PASSWORD"; exit 13; }
+
+      - name: Fetch official Panzer War Mod project
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/WangRui123qwe/Panzer-War-Lit-Mod.git pw-sdk
+          test -d pw-sdk/UnityProject || { echo "Official repo has no UnityProject folder"; exit 21; }
+          cp -a pw-sdk/UnityProject unity-project
+          mkdir -p unity-project/Assets
+          cp -a Leopard1Assets/Leopard1 unity-project/Assets/
+          mkdir -p unity-project/BuildPiplineCI
+          cp cloud/Leopard1BuildManifest.json unity-project/BuildPiplineCI/Leopard1BuildManifest.json
+
+      - name: Inspect SDK version and required assets
+        shell: bash
+        run: |
+          echo "=== ProjectVersion ==="
+          cat unity-project/ProjectSettings/ProjectVersion.txt || true
+          echo "=== ModManager candidates ==="
+          find unity-project/Assets -maxdepth 5 \( -iname '*BuildPipline*' -o -iname '*ModPackage*' \) -print | head -100 || true
+          if ! grep -Rqs "Utility_BuildPipline" unity-project/Assets; then
+            echo "WARNING: Utility_BuildPipline source not found by grep; it may live in a precompiled assembly."
+          fi
+          if ! find unity-project/Assets -iname '*BuildPipline-Vehicle-Leopard1*' -print -quit | grep -q .; then
+            echo "ERROR: Leopard1 Panzer War BuildPipline asset does not exist yet."
+            echo "The geometry prefab is prepared, but the official Vehicle Wizard/vehicle template must create the Vehicle/BuildPipline/ModPackage assets first."
+            exit 31
+          fi
+
+      - name: Build Panzer War modpack with official CI entrypoint
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: unity-project
+          targetPlatform: Android
+          buildMethod: ShanghaiWindy.Editor.Utility_BuildPipline.DoBuildPiplineManifest
+          customParameters: -config BuildPiplineCI/Leopard1BuildManifest.json
+
+      - name: Collect outputs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          find unity-project -type f -name '*.modpack' -exec cp -v {} artifacts/ \; || true
+          find unity-project/Build -type f -maxdepth 8 -exec cp --parents {} artifacts/ \; 2>/dev/null || true
+
+      - name: Upload build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Leopard1-PanzerWar-Android
+          path: artifacts
+          if-no-files-found: warn
